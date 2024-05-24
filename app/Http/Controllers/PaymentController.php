@@ -5,9 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\WifiPlan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use App\Services\OrangeOMService;
+use Illuminate\Support\Str; // Import the Str class
 
 class PaymentController extends Controller
 {
+    protected $orangeService;
+
+    public function __construct(OrangeOMService $orangeService)
+    {
+        $this->orangeService = $orangeService;
+    }
+
     public function showPaymentPage(Request $request)
     {
         $planId = $request->query('planId');
@@ -87,14 +96,25 @@ class PaymentController extends Controller
         }
     }
 
-public function thankYou()
-{
-    // Generate login details, fetch plan details, etc.
-    // Example data:
-    $username = 'generated_username';
-    $password = 'generated_password';
+    public function initiatePayment(Request $request)
+    {
+        $result = $this->orangeService->initiatePayment($request->amount, $request->phoneNumber);
+        return response()->json($result);
+    }
 
-    // Pass data to the thank you page view
-    return view('thankyou', compact('username', 'password'));
-}
+    public function paymentCallback(Request $request)
+    {
+        // Handle Orange OM payment callback
+    }
+
+    public function thankYou()
+    {
+        // Generate login details, fetch plan details, etc.
+        // Example data:
+        $username = 'generated_username';
+        $password = 'generated_password';
+
+        // Pass data to the thank you page view
+        return view('thankyou', compact('username', 'password'));
+    }
 }
